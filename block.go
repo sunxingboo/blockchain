@@ -12,6 +12,7 @@ type Block struct {
 	Data          []byte //区块数据
 	PrevBlockHash []byte //前一个区块的哈希值
 	Hash          []byte //当前区块的哈希值
+	Nonce         int    //计算哈希的计数器
 }
 
 func (b *Block) SetHash() {
@@ -22,12 +23,13 @@ func (b *Block) SetHash() {
 }
 
 func NewBlock(data string, prevBlockHash []byte) *Block {
-	block := &Block{
-		Timestamp:     time.Now().Unix(),
-		Data:          []byte(data),
-		PrevBlockHash: prevBlockHash,
-	}
-	block.SetHash()
+	block := &Block{time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, 0}
+	pow := NewProofOfWork(block)
+	nonce, hash := pow.Run()
+
+	block.Hash = hash[:]
+	block.Nonce = nonce
+
 	return block
 }
 
